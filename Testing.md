@@ -157,7 +157,6 @@ Becomes:
 import { authOpts } from '~/server/auth'
 import { getSession } from '@solid-mediakit/auth'
 import { getRequestEvent } from 'solid-js/web'
-import { cache } from '@solidjs/router'
 import { z } from 'zod'
 import {
   createCaller,
@@ -169,7 +168,7 @@ import {
 const withCtx = createCaller
 
 export const callTest = createCaller(
-  cache(async ({ input$: _$$payload }) => {
+  async ({ input$: _$$payload }) => {
     'use server'
     const _$$validatedZod = await validateZod(
       _$$payload,
@@ -189,7 +188,7 @@ export const callTest = createCaller(
     console.log('Welcome', session$.user.name)
     console.log('ctx', ctx$)
     return `hey ${_$$validatedZod.test}`
-  }, 'callTest'),
+  },
   {
     protected: true,
     key: 'callTest',
