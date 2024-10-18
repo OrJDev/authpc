@@ -1,7 +1,7 @@
 > uncompleted docs, demo purposes
 
-check out [how it works](./Testing.md)
-check out [transform](./transform.md)
+- check out [how it works](./Testing.md)
+- check out [transform](./transform.md)
 
 # @solid-mediakit/authpc
 
