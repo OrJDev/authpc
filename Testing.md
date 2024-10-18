@@ -152,6 +152,34 @@ export const r = createCaller(
 
 ## Middleware Merging
 
+### redirect / error
+
+You can use those utility to opt out of context and throw an error / redirect the client
+
+```ts
+import { withMw1 } from './file1'
+import { error$, redirect$ } from '@solid-mediakit/authpc'
+
+export const withMw2 = withMw1.use(({ ctx$ }) => {
+  if (ctx$.myFile1 === 2) {
+    let redirectOrError = 'redirect' as const
+    if (redirectOrError === 'redirect') {
+      return redirect$('/')
+    } else {
+      return error$('/')
+    }
+  }
+  return {
+    ...ctx$,
+    myFile2: 2,
+  }
+})
+
+export const action2 = withMw2(({ ctx$ }) => {
+  return `hey ${ctx$.myFile1} ${ctx$.myFile2}`
+})
+```
+
 This may sound simple but a lot of steps are involved here, im not going to bored everyone but basically look at the transformation
 
 ### file1.ts
