@@ -13,6 +13,8 @@ AuthPC also allows you to throw type-safe errors, redirect the user, modify head
 
 That means you can create server actions completly type safe, cached, auth/session protected and all in simple function declaration, many might think but wait this is very simple to achieve in other frameworks, what took you so long to create this one, In this doc i'm actually going to explain the behind the scenes of `AuthPC`.
 
+Everything here is type-safe, it also includes middlewares and allowed to be imported to any file thanks to the advance babel plugin.
+
 ## How Is It Being Used
 
 First, lets understand what does the `createCaller` method accepts
@@ -106,6 +108,106 @@ export const r = createCaller(
     method: "POST"
   },
 )
+```
+
+## Middleware Merging
+
+This may sound simple but a lot of steps are involved here, im not going to bored everyone but basically look at the transformation
+
+### file1.ts
+
+```ts
+import { createCaller } from '@solid-mediakit/authpc'
+
+export const withMw1 = createCaller.use(() => {
+  return {
+    myFile1: 1,
+  }
+})
+
+export const action1 = withMw1(({ ctx$ }) => {
+  return `hey ${ctx$.myFile1} `
+})
+```
+
+becomes
+
+```ts
+import { createCaller, callMiddleware$ } from '@solid-mediakit/authpc'
+
+export const withMw1 = createCaller
+
+export const action1 = createCaller(
+  async ({ input$: _$$payload }) => {
+    'use server'
+    const ctx$ = await callMiddleware$(_$$event, _$$withMw1_mws)
+    if (ctx$ instanceof Response) return ctx$
+    return `hey ${ctx$.myFile1} `
+  },
+  {
+    protected: false,
+    key: 'action1',
+    method: 'POST',
+    type: 'query',
+  },
+)
+
+export const _$$withMw1_mws = [
+  () => {
+    return {
+      myFile1: 1,
+    }
+  },
+]
+```
+
+### file2.ts
+
+```ts
+import { withMw1 } from './file1'
+
+export const withMw2 = withMw1.use(({ ctx$ }) => {
+  return {
+    ...ctx$,
+    myFile2: 2,
+  }
+})
+
+export const action2 = withMw2(({ ctx$ }) => {
+  return `hey ${ctx$.myFile1} ${ctx$.myFile2}`
+})
+
+```
+
+Becomes
+
+```ts
+import { createCaller } from '@solid-mediakit/authpc'
+import { withMw1, _$$withMw1_mws } from './file1'
+
+export const withMw2 = withMw1
+
+export const action2 = createCaller(
+  async ({ input$: _$$payload }) => {
+    'use server'
+    return `hey ${ctx$.myFile1} ${ctx$.myFile2}`
+  },
+  {
+    protected: false,
+    key: 'action2',
+    method: 'POST',
+    type: 'query',
+  },
+)
+export const _$$withMw2_mws = [
+  ..._$$withMw1_mws,
+  ({ ctx$ }) => {
+    return {
+      ...ctx$,
+      myFile2: 2,
+    }
+  },
+]
 ```
 
 ## What makes it so complex?
@@ -254,6 +356,3 @@ export const _$$withCtx_mws = [
 
 ```
 
-so `input` calls becomes `_$$payload` or `_$$validatedZod`
-`event$` calls becomes `_$$event` using getRequestEvent
-`ctx` becomes `ctx$` using callMiddleware$
