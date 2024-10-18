@@ -1,5 +1,7 @@
 > this doc was created within few seconds, please ignore it its just for demo purposes, many features aren't mentioned yet
 
+[hackmd](https://hackmd.io/@NTFWkRnwRTKLAb_sAaa1EA/Sy6bWZeeJx)
+
 ## What Is AuthPC
 
 AuthPC is a utility library that combines both 
