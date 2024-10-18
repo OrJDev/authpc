@@ -20,6 +20,54 @@ First, lets understand what does the `createCaller` method accepts
 - createCaller(schema,fn,opts?)
 - createCaller(fn,opts?)
 
+so use it like:
+
+```ts
+import { createCaller, response$ } from '@solid-mediakit/authpc'
+
+export const getRequest3 = createCaller(
+  () => {
+    return response$(
+      { iSetTheHeader: true },
+      { headers: { 'set-cookie': 'solid-testing=1' } },
+    )
+  },
+  {
+    method: 'GET',
+  },
+)
+
+// simply call from client
+const myQueryData = getRequest3();
+```
+
+or:
+
+```ts
+import { createAction } from '@solid-mediakit/authpc'
+
+export const actionOne = createCaller(
+  z.object({
+    test: z.string(),
+  }),
+  ({ input$, event$ }) => {
+    console.log(
+      'user-agent',
+      isServer,
+      event$.request.headers.get('user-agent'),
+    )
+    return `hey ${input$.test}`
+  },
+  {
+    type: 'action',
+  },
+)
+
+// from client
+const mutationData = actionOne();
+mutationData.mutate({ test: "ok" })
+```
+
 ### fn
 
 while `fn` is something like:
