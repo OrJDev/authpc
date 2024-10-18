@@ -1,7 +1,5 @@
 > this doc was created within few seconds, please ignore it its just for demo purposes, many features aren't mentioned yet
 
-[hackmd](https://hackmd.io/@NTFWkRnwRTKLAb_sAaa1EA/Sy6bWZeeJx)
-
 ## What Is AuthPC
 
 AuthPC is a utility library that combines both 
@@ -224,7 +222,7 @@ export const action2 = withMw2(({ ctx$ }) => {
 Becomes
 
 ```ts
-import { createCaller } from '@solid-mediakit/authpc'
+import { createCaller, callMiddleware$ } from '@solid-mediakit/authpc'
 import { withMw1, _$$withMw1_mws } from './file1'
 
 export const withMw2 = withMw1
@@ -232,6 +230,8 @@ export const withMw2 = withMw1
 export const action2 = createCaller(
   async ({ input$: _$$payload }) => {
     'use server'
+    const ctx$ = await callMiddleware$(_$$event, _$$withMw2_mws)
+    if (ctx$ instanceof Response) return ctx$
     return `hey ${ctx$.myFile1} ${ctx$.myFile2}`
   },
   {
@@ -241,6 +241,7 @@ export const action2 = createCaller(
     type: 'query',
   },
 )
+
 export const _$$withMw2_mws = [
   ..._$$withMw1_mws,
   ({ ctx$ }) => {
