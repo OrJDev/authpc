@@ -23,15 +23,39 @@ First, lets understand what does the `createCaller` method accepts
 - createCaller(fn,opts?)
 
 so use it like:
+## createCaller
+
+Use this method to interact with the api, you can choose wether to use a `query` or a `mutation` (default is query) and also choose wether to use `GET`/`POST` (default is POST).
 
 ```ts
 import { createCaller, response$ } from '@solid-mediakit/authpc'
+import { z } from 'zod'
 
-export const getRequest3 = createCaller(
+const mySchema = z.object({ name: z.string() })
+
+createCaller(mySchema, ({ input$, session$ }) => {
+  console.log('User logged in?', session$)
+  return `Hey there ${input$.name}`
+})
+
+// protected server function
+createCaller(
+  mySchema,
+  ({ input$, session$ }) => {
+    console.log('User logged in!!!', session$)
+    return `Hey there ${input$.name}`
+  },
+  {
+    protected: true,
+  },
+)
+
+// this will be called using GET method
+export const getRequest = createCaller(
   () => {
     return response$(
       { iSetTheHeader: true },
-      { headers: { 'set-cookie': 'solid-testing=1' } },
+      { headers: { 'cache-control': 'max-age=60' } },
     )
   },
   {
@@ -41,7 +65,23 @@ export const getRequest3 = createCaller(
 
 // simply call from client
 const myQueryData = getRequest3();
+
+// this will be called using GET method, and is a mutation
+export const mutation = createCaller(
+  () => {
+    return response$(
+      { iSetTheHeader: true },
+      { headers: { 'cache-control': 'max-age=60' } },
+    )
+  },
+  {
+    method: 'GET',
+    type: 'action',
+  },
+)
+mutation.mutate()
 ```
+
 
 or:
 
@@ -355,4 +395,3 @@ export const _$$withCtx_mws = [
 ]
 
 ```
-
