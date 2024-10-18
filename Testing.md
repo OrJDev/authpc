@@ -1,3 +1,5 @@
+> this doc was created within few seconds, please ignore it its just for demo purposes, many features aren't mentioned yet
+
 ## What Is AuthPC
 
 AuthPC is a utility library that combines both 
