@@ -130,3 +130,41 @@ export const action2 = withMw2(({ ctx$ }) => {
   return `hey ${ctx$.myFile1} ${ctx$.myFile2}`
 })
 ```
+
+becomes:
+
+
+```ts
+import { createCaller, callMiddleware$ } from '@solid-mediakit/authpc'
+import { withMw1, _$$withMw1_mws } from './file1'
+
+export const withMw2 = withMw1
+
+export const action2 = createCaller(
+  async ({ input$: _$$payload }) => {
+    'use server'
+    const ctx$ = await callMiddleware$(_$$event, _$$withMw2_mws)
+    if (ctx$ instanceof Response) return ctx$
+    return `hey ${ctx$.myFile1} ${ctx$.myFile2}`
+  },
+  {
+    protected: false,
+    key: 'action2',
+    method: 'POST',
+    type: 'query',
+  },
+)
+
+export const _$$withMw2_mws = [
+  ..._$$withMw1_mws,
+  ({ ctx$ }) => {
+    return {
+      ...ctx$,
+      myFile2: 2,
+    }
+  },
+]
+```
+
+- check out [how it works](./Testing.md)
+- check out [transform](./transform.md)
